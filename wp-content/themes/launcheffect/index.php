@@ -21,7 +21,6 @@ header('HTTP/1.1 200 OK'); ?>
 	<link rel="stylesheet" type="text/css" href="<?php bloginfo('stylesheet_url'); ?>" />
 	
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js" type="text/javascript"></script> 
-	<script type="text/javascript" src="<?php bloginfo('template_url'); ?>/js/supersized.3.1.3.core.min.js"></script>
 	<script type="text/javascript" src="<?php bloginfo('template_url'); ?>/js/init.js"></script>
 	
 <?php get_header(); 
@@ -39,10 +38,15 @@ logVisits($referredBy, $stats_table);
 <body <?php if(is_page('stats')) { echo 'id="stats"'; }?>>
   <div class="container"> 
     <h1 class="logo">Localbnd&trade;</h1>
+    <span class="slogan">Discover new music where you live.</span>
     <div class="main">
       <p>Localbnd is a social discovery engine for the best in local independant music.  Friends can find, share, and vote on exciting new bands and musicians within their city and region.</p>
       <p>Localbnd isn’t bogged down by the mainstream music found on other sites – so the newest bands you want to listen to are just a couple clicks away.</p>
     </div>
+
+    <div style="clear:both;"></div>
+    
+    <p class="h3">Would you like to try Localbnd?</p>
 
     <!-- STORE BASE URL FOR AJAX USE -->
     <span class="dirname"><?php bloginfo('url'); ?></span>					
@@ -51,12 +55,21 @@ logVisits($referredBy, $stats_table);
     <form id="form" action="">
       <fieldset>
         <input type="hidden" name="code" id="code" value="<?php codeCheck(); ?>" />
-        <label for="email">ENTER YOUR EMAIL ADDRESS:</label>
-        <input type="text" id="email" name="email" />
+        <label for="email">Sign up for our early beta invite.</label>
+        <input type="text" id="email" name="email" alt="Enter your email address" />
         <span id="submit-button-border"><input type="submit" name="submit" value="Go" id="submit-button" /></span>
         <div id="error"></div>
       </fieldset>
     </form>
+
+    <div id="social-wrapper">
+      <span class="r15">You should</span>
+      <div class="twitter social">Twitter</div>
+      <span class="lr15">and</span>
+      <div class="facebook social">Facebook</div>
+    </div>
+
+    <div style="clear:both"></div>
 
     <!-- FORM (POST-SIGNUP) -->
     <form id="success" action="">
@@ -73,6 +86,8 @@ logVisits($referredBy, $stats_table);
         <input type="text" id="successcode" value="" onclick="SelectAll('successcode');"/>	
       </fieldset>
     </form>
+
+    <div style="clear:both"></div>
 
     <!-- FORM (RETURNING USER) -->
     <form id="returning" action="">
@@ -104,6 +119,7 @@ logVisits($referredBy, $stats_table);
       Send your contact info to <a href="mailto:submissions@localbnd.com">submissions@localbnd.com</a>.</p>
 
       <p><small>We take every conact seriously and will be back in touch within 24 hours.</small></p>
+      <p><small>Localbnd &copy;<?php echo date('Y') ?>. All rights reserved.</small></p>
 
       <?php global $user_login; get_currentuserinfo(); if ($user_login) :?>
         <a href="stats" target="_blank">Stats</a><br />
@@ -114,5 +130,39 @@ logVisits($referredBy, $stats_table);
       <?php get_footer(); ?>
     </div>
   </div>
+  <script>
+    jQuery(function($){
+      $('#email').each(function(){
+        var curval = $(this).val();
+        var altval = $(this).attr('alt');
+        if (curval == "" || curval == altval) {
+          $(this).css({"color":"#999"});
+          $(this).val(altval);
+        } else {
+          $(this).css({"color":"#000"});
+        }
+      });
+
+      // if focus, clear if necessary
+      $('#email').focus(function(){
+        var curval = $(this).val();
+        var altval = $(this).attr('alt');
+        $(this).css({"color":"#000"});
+        if(curval==altval){
+          $(this).val("");
+        }
+      });
+
+      // if blur, put default text back and gray if necessary
+      $('#email').blur(function(){
+        var curval = $(this).val();
+        var altval = $(this).attr('alt');
+        if(curval==""){
+          $(this).css({"color":"#999"});
+          $(this).val(altval);
+        }
+      });
+    });
+  </script>
 </body>
 </html>
