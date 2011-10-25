@@ -18,10 +18,13 @@ if(!defined('MEMBERSHIP_VIEW_COMMENTS')) define( 'MEMBERSHIP_VIEW_COMMENTS', fal
 
 // Use a global table system - experimental
 if(!defined('MEMBERSHIP_GLOBAL_TABLES')) define( 'MEMBERSHIP_GLOBAL_TABLES', false);
+if(!defined('MEMBERSHIP_GLOBAL_MAINSITE')) define( 'MEMBERSHIP_GLOBAL_MAINSITE', 1);
 
 if(!defined('MEMBERSHIP_MASTER_ADMIN')) define( 'MEMBERSHIP_MASTER_ADMIN', 'admin');
 
 if(!defined('MEMBERSHIP_SETACTIVATORAS_ADMIN')) define( 'MEMBERSHIP_SETACTIVATORAS_ADMIN', 'yes');
 
 if(!defined('MEMBERSHIP_VERSION_KEY')) define( 'MEMBERSHIP_VERSION_KEY', 'yes');
+
+if(!defined('MEMBERSHIP_PLUGINS_ONLY_SUPERADMIN')) define( 'MEMBERSHIP_PLUGINS_ONLY_SUPERADMIN', false);
 ?>

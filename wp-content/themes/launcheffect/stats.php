@@ -5,12 +5,10 @@ Template Name: Stats
 
 get_header(); 
 
-include('functions/le-functions.php');
-
 ?>
-
+<body>
+<style>html { margin-top: 0 !important; } #wpadminbar { display: none; } #footer { display: none; }</style>
 <div id="stats-wrapper">
-
 	<?php 
 	
 	if (isset($_GET['view'])) { 
@@ -20,10 +18,6 @@ include('functions/le-functions.php');
 	} else { 
 	
 	?>
-
-	<h1>Stats: Sign-Ups</h1>
-
-	<a href="../wp-content/themes/launcheffect/csv.php?table=data" target="_blank" class="get-csv-button">&darr; Download CSV</a>
 
 	<table id="signups">
 		<thead>
@@ -164,3 +158,4 @@ include('functions/le-functions.php');
 </div>
 
 <?php get_footer(); ?>
+</body>

@@ -1,6 +1,9 @@
 <?php
 ?>
 <form id="reg-form" action="<?php echo get_permalink(); ?>" method="post">
+
+	<?php do_action( "signup_hidden_fields" ); ?>
+
 	<div class="formleft">
 		<h2><?php _e('Step 1. Create a New Account','membership'); ?></h2>
 		<a title="Login »" href="<?php echo wp_login_url( add_query_arg('action', 'page2', get_permalink()) ); ?>" class="alignright" id="login_right"><?php _e('Already have a user account?' ,'membership'); ?></a>
@@ -33,22 +36,7 @@
 		<?php
 			do_action('membership_subscription_form_registration_presubmit_content');
 
-			if(function_exists('get_site_option')) {
-				$terms = get_site_option('signup_tos_data');
-			} else {
-				$terms = '';
-			}
-
-			if(!empty($terms)) {
-				?>
-				<h2><?php _e('Terms and Conditions','membership'); ?></h2>
-				<div id="reg_tos">
-				<?php echo stripslashes($terms); ?>
-				</div>
-				<p><label><input type="checkbox" value="1" name="tosagree">
-				<strong><?php _e('I agree to the Terms of Use','membership'); ?></strong></label></p>
-				<?php
-			}
+			do_action( 'signup_extra_fields', $errors );
 		?>
 
 		<p><input type="submit" value="<?php _e('Register My Account &raquo;','membership'); ?>" class="regbutton" name="register"></p>

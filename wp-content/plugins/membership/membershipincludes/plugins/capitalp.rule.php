@@ -1,4 +1,11 @@
 <?php
+/*
+Plugin Name: Capital P Rule
+Description: Disables the WordPress enforced capitalisation
+Author: Barry (Incsub)
+Author URI: http://caffeinatedb.com
+*/
+
 class M_Capitalp extends M_Rule {
 
 	var $name = 'capitalp';

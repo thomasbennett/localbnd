@@ -29,7 +29,8 @@ if(!class_exists('M_Ping')) {
 									'%blogurl%' => '',
 									'%username%' => '',
 									'%usernicename%' => '',
-									'%userid%' => '',
+									'%useremail%'	=>	'',
+									'%userid%'		=>	'',
 									'%networkname%' => '',
 									'%networkurl%' => '',
 									'%subscriptionname%' => '',
@@ -281,6 +282,12 @@ if(!class_exists('M_Ping')) {
 												break;
 
 					case '%usernicename%':		$pingdata[$key] = $member->user_nicename;
+												break;
+
+					case '%useremail%':			$pingdata[$key] = $member->user_email;
+												break;
+
+					case '%userid%':			$pingdata[$key] = $member->ID;
 												break;
 
 					case '%networkname%':		$pingdata[$key] = get_site_option('site_name');

@@ -1,4 +1,11 @@
 <?php
+/*
+Plugin Name: Default MarketPress Rules
+Description: Main MarketPress rules
+Author: Barry (Incsub)
+Author URI: http://caffeinatedb.com
+*/
+
 class M_Marketpress extends M_Rule {
 
 	var $name = 'marketpress';

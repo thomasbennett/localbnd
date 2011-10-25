@@ -3,7 +3,7 @@ if(!class_exists('membershipadmin')) {
 
 	class membershipadmin {
 
-		var $build = 8;
+		var $build = 10;
 		var $db;
 
 		//
@@ -54,6 +54,7 @@ if(!class_exists('membershipadmin')) {
 			add_action('load-membership_page_membershipcommunication', array(&$this, 'add_admin_header_membershipcommunication'));
 			add_action('load-membership_page_membershipurlgroups', array(&$this, 'add_admin_header_membershipurlgroups'));
 			add_action('load-membership_page_membershippings', array(&$this, 'add_admin_header_membershippings'));
+			add_action('load-membership_page_membershipplugins', array(&$this, 'add_admin_header_membershipplugins'));
 
 			add_action('load-users_page_membershipuser', array(&$this, 'add_admin_header_membershipuser'));
 
@@ -129,7 +130,15 @@ if(!class_exists('membershipadmin')) {
 				add_action( 'edit_user_profile_update', array(&$this, 'update_membershipadmin_capability'));
 			}
 
-			$M_options = get_option('membership_options', array());
+			if(defined('MEMBERSHIP_GLOBAL_TABLES') && MEMBERSHIP_GLOBAL_TABLES === true) {
+				if(function_exists('get_blog_option')) {
+					$M_options = get_blog_option(MEMBERSHIP_GLOBAL_MAINSITE, 'membership_options', array());
+				} else {
+					$M_options = get_option('membership_options', array());
+				}
+			} else {
+				$M_options = get_option('membership_options', array());
+			}
 
 			// Short codes
 			if(!empty($M_options['membershipshortcodes'])) {
@@ -139,6 +148,8 @@ if(!class_exists('membershipadmin')) {
 					}
 				}
 			}
+
+			do_action('membership_register_shortcodes');
 
 		}
 
@@ -161,6 +172,9 @@ if(!class_exists('membershipadmin')) {
 
 				add_submenu_page('membership', __('Membership Levels','membership'), __('Edit Levels','membership'), 'membershipadmin', "membershiplevels", array(&$this,'handle_levels_panel'));
 				add_submenu_page('membership', __('Membership Subscriptions','membership'), __('Edit Subscriptions','membership'), 'membershipadmin', "membershipsubs", array(&$this,'handle_subs_panel'));
+
+				//add_submenu_page('membership', __('Membership Purchases','membership'), __('Edit Purchases','membership'), 'membershipadmin', "membershippurchases", array(&$this,'handle_purchases_panel'));
+
 				add_submenu_page('membership', __('Membership Gateways','membership'), __('Edit Gateways','membership'), 'membershipadmin', "membershipgateways", array(&$this,'handle_gateways_panel'));
 
 				add_submenu_page('membership', __('Membership Communication','membership'), __('Edit Communication','membership'), 'membershipadmin', "membershipcommunication", array(&$this,'handle_communication_panel'));
@@ -170,6 +184,14 @@ if(!class_exists('membershipadmin')) {
 				add_submenu_page('membership', __('Membership Pings','membership'), __('Edit Pings','membership'), 'membershipadmin', "membershippings", array(&$this,'handle_pings_panel'));
 
 				add_submenu_page('membership', __('Membership Options','membership'), __('Edit Options','membership'), 'membershipadmin', "membershipoptions", array(&$this,'handle_options_panel'));
+
+				if(defined('MEMBERSHIP_PLUGINS_ONLY_SUPERADMIN') && MEMBERSHIP_PLUGINS_ONLY_SUPERADMIN == true) {
+					if(is_super_admin()) {
+						add_submenu_page('membership', __('Membership Plugins','membership'), __('Edit Plugins','membership'), 'membershipadmin', "membershipplugins", array(&$this,'handle_plugins_panel'));
+					}
+				} else {
+					add_submenu_page('membership', __('Membership Plugins','membership'), __('Edit Plugins','membership'), 'membershipadmin', "membershipplugins", array(&$this,'handle_plugins_panel'));
+				}
 
 				do_action('membership_add_menu_items_bottom');
 
@@ -349,6 +371,13 @@ if(!class_exists('membershipadmin')) {
 			wp_localize_script( 'pingsjs', 'membership', array( 'deleteping' => __('Are you sure you want to delete this ping and the associated history?','membership') ) );
 
 			$this->handle_ping_updates();
+		}
+
+		function add_admin_header_membershipplugins() {
+			// Run the core header
+			$this->add_admin_header_core();
+
+			$this->handle_plugins_panel_updates();
 		}
 
 		// Panel handling functions
@@ -1982,7 +2011,16 @@ if(!class_exists('membershipadmin')) {
 				$M_options['upgradeperiod'] = $_POST['upgradeperiod'];
 				$M_options['renewalperiod'] = $_POST['renewalperiod'];
 
-				update_option('membership_options', $M_options);
+
+				if(defined('MEMBERSHIP_GLOBAL_TABLES') && MEMBERSHIP_GLOBAL_TABLES === true) {
+					if(function_exists('update_blog_option')) {
+						update_blog_option(MEMBERSHIP_GLOBAL_MAINSITE, 'membership_options', $M_options);
+					} else {
+						update_option('membership_options', $M_options);
+					}
+				} else {
+					update_option('membership_options', $M_options);
+				}
 
 				do_action( 'membership_options_page_process' );
 
@@ -2001,7 +2039,19 @@ if(!class_exists('membershipadmin')) {
 
 			wp_reset_vars( array('action', 'page') );
 
-			$M_options = get_option('membership_options', array());
+			if(defined('MEMBERSHIP_GLOBAL_TABLES') && MEMBERSHIP_GLOBAL_TABLES === true) {
+				if(function_exists('get_blog_option')) {
+					if(function_exists('switch_to_blog')) {
+						switch_to_blog(MEMBERSHIP_GLOBAL_MAINSITE);
+					}
+
+					$M_options = get_blog_option(MEMBERSHIP_GLOBAL_MAINSITE, 'membership_options', array());
+				} else {
+					$M_options = get_option('membership_options', array());
+				}
+			} else {
+				$M_options = get_option('membership_options', array());
+			}
 
 			$messages = array();
 			$messages[1] = __('Your options have been updated.','membership');
@@ -2192,7 +2242,7 @@ if(!class_exists('membershipadmin')) {
 						</tr>
 						<tr valign="top">
 							<th scope="row"><?php _e('Shortcode visibility default','membership'); ?><br/>
-								<em style='font-size:smaller;'><?php _e("Should the shortcodes above be visible or protected by default.",'membership'); ?>
+								<em style='font-size:smaller;'><?php _e("Should all shortcodes be visible or protected by default.",'membership'); ?>
 								</em>
 							</th>
 							<td>
@@ -2400,6 +2450,12 @@ if(!class_exists('membershipadmin')) {
 
 					<?php
 						do_action( 'membership_options_page' );
+
+						if(defined('MEMBERSHIP_GLOBAL_TABLES') && MEMBERSHIP_GLOBAL_TABLES === true) {
+							if(function_exists('restore_current_blog')) {
+								restore_current_blog();
+							}
+						}
 					?>
 
 					<p class="submit">
@@ -5511,6 +5567,249 @@ if(!class_exists('membershipadmin')) {
 			<?php
 
 		}
+
+		function handle_plugins_panel_updates() {
+			global $action, $page;
+
+			wp_reset_vars( array('action', 'page') );
+
+			if(isset($_GET['doaction']) || isset($_GET['doaction2'])) {
+				if(addslashes($_GET['action']) == 'toggle' || addslashes($_GET['action2']) == 'toggle') {
+					$action = 'bulk-toggle';
+				}
+			}
+
+			$active = get_option('membership_activated_plugins', array());
+
+			switch(addslashes($action)) {
+
+				case 'deactivate':	$key = addslashes($_GET['plugin']);
+									if(!empty($key)) {
+										check_admin_referer('toggle-plugin-' . $key);
+
+										$found = array_search($key, $active);
+										if($found !== false) {
+											unset($active[$found]);
+											update_option('membership_activated_plugins', array_unique($active));
+											wp_safe_redirect( add_query_arg( 'msg', 5, wp_get_referer() ) );
+										} else {
+											wp_safe_redirect( add_query_arg( 'msg', 6, wp_get_referer() ) );
+										}
+									}
+									break;
+
+				case 'activate':	$key = addslashes($_GET['plugin']);
+									if(!empty($key)) {
+										check_admin_referer('toggle-plugin-' . $key);
+
+										if(!in_array($key, $active)) {
+											$active[] = $key;
+											update_option('membership_activated_plugins', array_unique($active));
+											wp_safe_redirect( add_query_arg( 'msg', 3, wp_get_referer() ) );
+										} else {
+											wp_safe_redirect( add_query_arg( 'msg', 4, wp_get_referer() ) );
+										}
+									}
+									break;
+
+				case 'bulk-toggle':
+									check_admin_referer('bulk-plugins');
+									foreach($_GET['plugincheck'] AS $key) {
+										$found = array_search($key, $active);
+										if($found !== false) {
+											unset($active[$found]);
+										} else {
+											$active[] = $key;
+										}
+									}
+									update_option('membership_activated_plugins', array_unique($active));
+									wp_safe_redirect( add_query_arg( 'msg', 7, wp_get_referer() ) );
+									break;
+
+			}
+		}
+
+		function handle_plugins_panel() {
+			global $action, $page;
+
+			wp_reset_vars( array('action', 'page') );
+
+			$messages = array();
+			$messages[1] = __('Plugin updated.','membership');
+			$messages[2] = __('Plugin not updated.','membership');
+
+			$messages[3] = __('Plugin activated.','membership');
+			$messages[4] = __('Plugin not activated.','membership');
+
+			$messages[5] = __('Plugin deactivated.','membership');
+			$messages[6] = __('Plugin not deactivated.','membership');
+
+			$messages[7] = __('Plugin activation toggled.','membership');
+
+			?>
+			<div class='wrap'>
+				<div class="icon32" id="icon-plugins"><br></div>
+				<h2><?php _e('Edit Plugins','membership'); ?></h2>
+
+				<?php
+				if ( isset($_GET['msg']) ) {
+					echo '<div id="message" class="updated fade"><p>' . $messages[(int) $_GET['msg']] . '</p></div>';
+					$_SERVER['REQUEST_URI'] = remove_query_arg(array('message'), $_SERVER['REQUEST_URI']);
+				}
+
+				?>
+
+				<form method="get" action="?page=<?php echo esc_attr($page); ?>" id="posts-filter">
+
+				<input type='hidden' name='page' value='<?php echo esc_attr($page); ?>' />
+
+				<div class="tablenav">
+
+				<div class="alignleft actions">
+				<select name="action">
+				<option selected="selected" value=""><?php _e('Bulk Actions'); ?></option>
+				<option value="toggle"><?php _e('Toggle activation'); ?></option>
+				</select>
+				<input type="submit" class="button-secondary action" id="doaction" name="doaction" value="<?php _e('Apply'); ?>">
+
+				</div>
+
+				<div class="alignright actions"></div>
+
+				<br class="clear">
+				</div>
+
+				<div class="clear"></div>
+
+				<?php
+					wp_original_referer_field(true, 'previous'); wp_nonce_field('bulk-plugins');
+
+					$columns = array(	"name"		=>	__('Plugin Name', 'membership'),
+										"file" 		=> 	__('Plugin File','membership'),
+										"active"	=>	__('Active','membership')
+									);
+
+					$columns = apply_filters('membership_plugincolumns', $columns);
+
+					$plugins = get_membership_plugins();
+
+					$active = get_option('membership_activated_plugins', array());
+
+				?>
+
+				<table cellspacing="0" class="widefat fixed">
+					<thead>
+					<tr>
+					<th style="" class="manage-column column-cb check-column" id="cb" scope="col"><input type="checkbox"></th>
+					<?php
+						foreach($columns as $key => $col) {
+							?>
+							<th style="" class="manage-column column-<?php echo $key; ?>" id="<?php echo $key; ?>" scope="col"><?php echo $col; ?></th>
+							<?php
+						}
+					?>
+					</tr>
+					</thead>
+
+					<tfoot>
+					<tr>
+					<th style="" class="manage-column column-cb check-column" scope="col"><input type="checkbox"></th>
+					<?php
+						reset($columns);
+						foreach($columns as $key => $col) {
+							?>
+							<th style="" class="manage-column column-<?php echo $key; ?>" id="<?php echo $key; ?>" scope="col"><?php echo $col; ?></th>
+							<?php
+						}
+					?>
+					</tr>
+					</tfoot>
+
+					<tbody>
+						<?php
+						if($plugins) {
+							foreach($plugins as $key => $plugin) {
+								$default_headers = array(
+									                'Name' => 'Plugin Name',
+													'Author' => 'Author',
+													'Description'	=>	'Description',
+													'AuthorURI' => 'Author URI'
+									        );
+
+								$plugin_data = get_file_data( membership_dir('membershipincludes/plugins/' . $plugin), $default_headers, 'plugin' );
+
+								if(empty($plugin_data['Name'])) {
+									continue;
+								}
+
+								?>
+								<tr valign="middle" class="alternate" id="plugin-<?php echo $plugin; ?>">
+									<th class="check-column" scope="row"><input type="checkbox" value="<?php echo esc_attr($plugin); ?>" name="plugincheck[]"></th>
+									<td class="column-name">
+										<strong><?php echo esc_html($plugin_data['Name']) . "</strong>" . __(' by ', 'membership') . "<a href='" . esc_attr($plugin_data['AuthorURI']) . "'>" . esc_html($plugin_data['Author']) . "</a>"; ?>
+										<?php if(!empty($plugin_data['Description'])) {
+											?><br/><?php echo esc_html($plugin_data['Description']);
+											}
+
+											$actions = array();
+
+											if(in_array($plugin, $active)) {
+												$actions['toggle'] = "<span class='edit activate'><a href='" . wp_nonce_url("?page=" . $page. "&amp;action=deactivate&amp;plugin=" . $plugin . "", 'toggle-plugin-' . $plugin) . "'>" . __('Deactivate') . "</a></span>";
+											} else {
+												$actions['toggle'] = "<span class='edit deactivate'><a href='" . wp_nonce_url("?page=" . $page. "&amp;action=activate&amp;plugin=" . $plugin . "", 'toggle-plugin-' . $plugin) . "'>" . __('Activate') . "</a></span>";
+											}
+										?>
+										<br><div class="row-actions"><?php echo implode(" | ", $actions); ?></div>
+										</td>
+
+									<td class="column-name">
+										<?php echo esc_html($plugin); ?>
+										</td>
+									<td class="column-active">
+										<?php
+											if(in_array($plugin, $active)) {
+												echo "<strong>" . __('Active', 'membership') . "</strong>";
+											} else {
+												echo __('Inactive', 'membership');
+											}
+										?>
+									</td>
+							    </tr>
+								<?php
+							}
+						} else {
+							$columncount = count($columns) + 1;
+							?>
+							<tr valign="middle" class="alternate" >
+								<td colspan="<?php echo $columncount; ?>" scope="row"><?php _e('No Plugns where found for this install.','membership'); ?></td>
+						    </tr>
+							<?php
+						}
+						?>
+
+					</tbody>
+				</table>
+
+
+				<div class="tablenav">
+
+				<div class="alignleft actions">
+				<select name="action2">
+					<option selected="selected" value=""><?php _e('Bulk Actions'); ?></option>
+					<option value="toggle"><?php _e('Toggle activation'); ?></option>
+				</select>
+				<input type="submit" class="button-secondary action" id="doaction2" name="doaction2" value="Apply">
+				</div>
+				<div class="alignright actions"></div>
+				<br class="clear">
+				</div>
+
+				</form>
+
+			</div> <!-- wrap -->
+			<?php
+		}
+
 
 	}
 

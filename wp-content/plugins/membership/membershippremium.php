@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Membership Premium
-Version: 2.0.7
+Version: 2.1
 Plugin URI: http://premium.wpmudev.org
 Description: A Membership system plugin
 Author: Barry (Incsub)
@@ -49,7 +49,7 @@ if(is_admin()) {
 
 	require_once('membershipincludes/classes/membershipadmin.php');
 
-	$membershipadmin =& new membershipadmin();
+	$membershipadmin = new membershipadmin();
 
 } else {
 	// Public interface
@@ -67,7 +67,7 @@ if(is_admin()) {
 
 	require_once('membershipincludes/classes/membershippublic.php');
 
-	$membershippublic =& new membershippublic();
+	$membershippublic = new membershippublic();
 
 }
 

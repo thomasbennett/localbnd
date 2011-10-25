@@ -1,6 +1,11 @@
 <?php
-// A simple invitation code system for the membership plugin
-// Written by: Barry Getty (Incsub)
+/*
+Plugin Name: Simple Invites Codes
+Description: Force invite codes for membership signups
+Author: Barry (Incsub)
+Author URI: http://caffeinatedb.com
+*/
+
 function M_AddSimpleInviteOptions() {
 
 	$Msi_options = get_option('membership_simpleinvite_options', array());

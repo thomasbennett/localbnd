@@ -1,4 +1,9 @@
 <?php
+/*
+Plugin Name: PayPal Single Payments Gateway
+Author: Barry (Incsub)
+Author URI: http://caffeinatedb.com
+*/
 
 class paypalsolo extends M_Gateway {
 
@@ -295,6 +300,10 @@ class paypalsolo extends M_Gateway {
 			}
 
 		}
+
+	}
+
+	function display_upgrade_from_free_button($subscription, $pricing, $user_id, $fromsub_id = false) {
 
 	}
 

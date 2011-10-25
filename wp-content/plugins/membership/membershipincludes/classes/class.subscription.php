@@ -321,7 +321,7 @@ if(!class_exists('M_Subscription')) {
 							}
 
 							if(isset($_POST['levelprice'][$level])) {
-								$levelprice = esc_attr($_POST['levelprice'][$level]);
+								$levelprice = floatval(esc_attr($_POST['levelprice'][$level]));
 							} else {
 								$levelprice = '';
 							}
@@ -404,7 +404,7 @@ if(!class_exists('M_Subscription')) {
 							}
 
 							if(isset($_POST['levelprice'][$level])) {
-								$levelprice = esc_attr($_POST['levelprice'][$level]);
+								$levelprice = floatval(esc_attr($_POST['levelprice'][$level]));
 							} else {
 								$levelprice = '';
 							}
@@ -485,6 +485,8 @@ if(!class_exists('M_Subscription')) {
 							</select>
 
 						<label for='levelprice[%level%]'><?php _e('Price : ','membership'); ?></label>
+						<input type='text' name='levelprice[%level%]' value='' class='narrow' />
+						<?php /* ?>
 						<select name='levelprice[%level%]'>
 							<option value=''></option>
 							<?php
@@ -494,7 +496,7 @@ if(!class_exists('M_Subscription')) {
 									<?php
 								}
 							?>
-						</select>&nbsp;
+						</select><?php */ ?>&nbsp;
 						<?php
 							if(!empty($M_options['paymentcurrency'])) {
 								echo esc_html($M_options['paymentcurrency']);
@@ -567,6 +569,8 @@ if(!class_exists('M_Subscription')) {
 								</select>
 
 								<label for='levelprice[<?php echo $levelid; ?>]'><?php _e('Price : ','membership'); ?></label>
+								<input type='text' name='levelprice[<?php echo $levelid; ?>]' value='<?php echo number_format($level->level_price, 2, '.', ''); ?>' class='narrow' />
+								<?php /* ?>
 								<select name='levelprice[<?php echo $levelid; ?>]'>
 									<option value=''></option>
 									<?php
@@ -576,7 +580,7 @@ if(!class_exists('M_Subscription')) {
 											<?php
 										}
 									?>
-								</select>&nbsp;
+								</select><?php */ ?>&nbsp;
 								<?php
 									if(!empty($M_options['paymentcurrency'])) {
 										echo esc_html($M_options['paymentcurrency']);
